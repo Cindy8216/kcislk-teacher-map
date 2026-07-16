@@ -77,9 +77,10 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 56px}
 .tag{font-size:12px;color:#fff;border-radius:6px;padding:2px 0;font-weight:600;width:3.4em;text-align:center;flex:none}
 .tag.room{background:var(--green-2)}
 .tag.office{background:var(--gold)}
+.tag.dial{background:var(--ext)}
 .rmcode{font-weight:700;color:var(--green);font-size:15.5px;letter-spacing:.5px}
 .flr{background:var(--inset);border:1px solid var(--line);color:var(--green);border-radius:6px;padding:1px 8px;font-size:12.5px;font-weight:600}
-.ext{color:var(--ext);font-weight:700;font-size:12.5px;margin-left:auto}
+.ext{color:var(--ext);font-weight:700;font-size:13.5px}
 .email{margin-top:8px;font-size:12.5px;color:var(--muted);word-break:break-all}
 .email a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted)}
 
@@ -95,9 +96,9 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 56px}
 .office.collapsed .chev{transform:rotate(-90deg)}
 .office.collapsed .seat-grid{display:none}
 /* 外師：同科同色 */
-.office.d-math>h3{border-left:5px solid #2E6DA4}.office.d-math .rm{background:#2E6DA4;color:#fff}
-.office.d-ss>h3{border-left:5px solid #B4692C}.office.d-ss .rm{background:#B4692C;color:#fff}
-.office.d-en>h3{border-left:5px solid #7A4A86}.office.d-en .rm{background:#7A4A86;color:#fff}
+.office.d-math>h3{border-left:5px solid #4A4CA6}.office.d-math .rm{background:#4A4CA6;color:#fff}
+.office.d-ss>h3{border-left:5px solid #2E6DA4}.office.d-ss .rm{background:#2E6DA4;color:#fff}
+.office.d-en>h3{border-left:5px solid #B4692C}.office.d-en .rm{background:#B4692C;color:#fff}
 .office.d-sci>h3{border-left:5px solid #2E8B72}.office.d-sci .rm{background:#2E8B72;color:#fff}
 .seat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:9px;margin:9px 0 4px}
 .rmcode.rlink{font-family:inherit;background:none;border:none;padding:0 0 1px;cursor:pointer;color:var(--green);border-bottom:1.5px dotted var(--green-2)}
@@ -186,7 +187,9 @@ function boot(D){
           </div>
           <div class="locs">
             <div class="loc"><span class="tag room">教室</span>${h.roomCode?('<button class="rmcode rlink" data-floor="'+esc(h.roomFloor)+'">'+esc(h.roomCode)+'</button>'):'<span class="rmcode">—</span>'}</div>
-            <div class="loc"><span class="tag office">導辦</span>${h.offRoom?('<button class="rmcode rlink" data-floor="'+esc(h.offFloor)+'">'+esc(h.offRoom)+'</button>'):'<span class="rmcode">—</span>'}${h.offExt?('<span class="ext">☎ '+esc(h.offExt)+'</span>'):''}</div>
+            ${(o&&h.offRoom&&h.offRoom===o.room)
+              ? '<div class="loc"><span class="tag dial">分機</span><span class="ext">'+esc(h.offExt||'—')+'</span></div>'
+              : '<div class="loc"><span class="tag office">導辦</span>'+(h.offRoom?('<button class="rmcode rlink" data-floor="'+esc(h.offFloor)+'">'+esc(h.offRoom)+'</button>'):'<span class="rmcode">—</span>')+(h.offExt?('<span class="ext">☎ '+esc(h.offExt)+'</span>'):'')+'</div>'}
           </div>
           ${h.email?`<div class="email">✉ <a href="mailto:${esc(h.email)}">${esc(h.email)}</a></div>`:''}
         </div>`;
