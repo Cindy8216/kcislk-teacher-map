@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>中學部位置圖 · 康橋</title>
+<title>中學部中外師位置圖 · 康橋</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -142,7 +142,7 @@ footer .cr{color:var(--gold-lt);font-size:11px;letter-spacing:3px}
 <header>
   <div class="hero">
     <p class="eyebrow">KCISLK · Faculty &amp; Room Directory</p>
-    <h1>中學部位置圖</h1>
+    <h1>中學部中外師位置圖</h1>
     <p class="sub">林口康橋國際學校 · 年級導辦、班級教室、老師分機查詢</p>
     <div class="search">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15452F" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
@@ -155,13 +155,15 @@ footer .cr{color:var(--gold-lt);font-size:11px;letter-spacing:3px}
   <button class="tab active" data-t="hr"><span class="tn">01</span>班級 · 導師</button>
   <button class="tab" data-t="cn"><span class="tn">02</span>中師辦公室</button>
   <button class="tab" data-t="fg"><span class="tn">03</span>外師辦公室</button>
-  <button class="tab" data-t="fl"><span class="tn">04</span>樓層平面圖</button>
+  <button class="tab" data-t="dp"><span class="tn">04</span>處室分機</button>
+  <button class="tab" data-t="fl"><span class="tn">05</span>樓層平面圖</button>
 </nav>
 <main>
   <div class="count" id="count"></div>
   <section id="sec-hr"></section>
   <section id="sec-cn" class="hidden"></section>
   <section id="sec-fg" class="hidden"></section>
+  <section id="sec-dp" class="hidden"></section>
   <section id="sec-fl" class="hidden"></section>
   <div class="empty hidden" id="empty">找不到符合的結果</div>
 </main>
@@ -215,6 +217,16 @@ function boot(D){
       return `<div class="office collapsed ${dep}" data-office="1"><h3 class="off-head"><span class="rm rlink" data-floor="${esc(o.floor)}" title="看樓層平面圖">${esc(o.room)}</span> <span class="off-name">${esc(o.office)}</span> <span class="off-cnt">${o.members.length}人</span><span class="chev">▾</span></h3><div class="seat-grid">${seats}</div></div>`;
     }).join('');
   }
+  function deptHTML(){
+    if(!D.deptOffices||!D.deptOffices.length) return '<div class="muted">（資料尚未更新，請稍後再試）</div>';
+    return D.deptOffices.map(o=>{
+      const seats=o.members.map(m=>{
+        const s=[o.office,m.name,m.ext].join(' ').toLowerCase();
+        return `<div class="seat item" data-s="${esc(s)}"><span class="nm">${esc(m.name)}</span><span class="ex">${esc(m.ext)}</span></div>`;
+      }).join('');
+      return `<div class="office collapsed" data-office="1"><h3 class="off-head"><span class="off-name">${esc(o.office)}</span> <span class="off-cnt">${o.members.length}</span><span class="chev">▾</span></h3><div class="seat-grid">${seats}</div></div>`;
+    }).join('');
+  }
   function floorHTML(){
     const order=D.floorOrder.slice().reverse();  // 1F 在最左、7F 在最右
     const btns=order.map(f=>`<button class="fbtn" data-f="${f}">${f}</button>`).join('');
@@ -234,6 +246,7 @@ function boot(D){
   document.getElementById('sec-hr').innerHTML = secHead('班級 · 導師','Homeroom &amp; Advisory') + hrHTML();
   document.getElementById('sec-cn').innerHTML = secHead('中師辦公室','Local Faculty Offices') + officeHTML(D.cnOffices,true);
   document.getElementById('sec-fg').innerHTML = secHead('外師辦公室','Foreign Faculty Offices') + officeHTML(D.fgOffices,false);
+  document.getElementById('sec-dp').innerHTML = secHead('處室分機','Administrative Offices') + deptHTML();
   document.getElementById('sec-fl').innerHTML = secHead('樓層平面圖','Floor Plans') + floorHTML();
 
   // floor picker + zoom
@@ -258,7 +271,7 @@ function boot(D){
     filter();
   });
 
-  const secs={hr:'sec-hr',cn:'sec-cn',fg:'sec-fg',fl:'sec-fl'};
+  const secs={hr:'sec-hr',cn:'sec-cn',fg:'sec-fg',dp:'sec-dp',fl:'sec-fl'};
   let active='hr';
   const q=document.getElementById('q'), clr=document.getElementById('clr');
   const count=document.getElementById('count'), empty=document.getElementById('empty');
@@ -270,7 +283,7 @@ function boot(D){
   document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)setTab(b.dataset.t);});
 
   // accordion: click an office bar to expand/collapse its seats
-  ['sec-cn','sec-fg'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{
+  ['sec-cn','sec-fg','sec-dp'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{
     if(e.target.closest('.rlink')) return; // clicking the room code jumps to the floor plan instead
     const h=e.target.closest('.off-head'); if(h) h.parentElement.classList.toggle('collapsed');
   }));
