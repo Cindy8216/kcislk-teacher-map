@@ -101,11 +101,29 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 56px}
 .office.d-en>h3{border-left:5px solid #B4692C}.office.d-en .rm{background:#B4692C;color:#fff}
 .office.d-sci>h3{border-left:5px solid #2E8B72}.office.d-sci .rm{background:#2E8B72;color:#fff}
 .seat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:9px;margin:9px 0 4px}
-.rmcode.rlink{font-family:inherit;background:none;border:none;padding:0 0 1px;cursor:pointer;color:var(--green);border-bottom:1.5px dotted var(--green-2)}
-.rmcode.rlink:hover{color:var(--green-2);border-bottom-style:solid}
+.seat-grid.as-map{display:block}
+/* 座位配置圖 */
+.seatmap-wrap{overflow-x:auto;padding:14px 4px 16px}
+.seatmap{position:relative;display:grid;gap:9px;padding:16px;min-width:520px;
+  border:3px solid var(--green);border-radius:14px;background:var(--inset);
+  box-shadow:inset 0 1px 6px rgba(60,45,20,.08)}
+.desk{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 10px;
+  font-size:13.5px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.desk .lb{font-size:11.5px;color:var(--green);background:var(--paper);border:1px solid var(--line);
+  border-radius:5px;padding:0 6px}
+.desk .nm{font-weight:700;font-size:14px}
+.desk .dext{color:var(--ext);font-weight:600;font-size:12px}
+.door{position:absolute;z-index:2;background:var(--gold);color:#fff;font-size:11px;font-weight:700;
+  border-radius:5px;padding:1px 7px;letter-spacing:1px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+/* 搜尋時：配置圖內不符合的座位改用淡化（保留位置），符合的高亮 */
+.seatmap .item.hidden{display:flex!important;opacity:.18;filter:grayscale(.8)}
+.searching-on .seatmap .item:not(.hidden){outline:2.5px solid var(--gold);outline-offset:1px;background:#FDF6DF}
+.rmcode.rlink,.rmcode.olink{font-family:inherit;background:none;border:none;padding:0 0 1px;cursor:pointer;color:var(--green);border-bottom:1.5px dotted var(--green-2)}
+.rmcode.rlink:hover,.rmcode.olink:hover{color:var(--green-2);border-bottom-style:solid}
+.office.flash>h3{outline:3px solid var(--gold);outline-offset:2px}
 .office .rm.rlink{cursor:pointer}
 .office .rm.rlink:hover{text-decoration:underline;filter:brightness(1.12)}
-.gdao .glink{background:none;border:none;font:inherit;color:inherit;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.gdao .glink,.gdao .olink{background:none;border:none;font:inherit;color:inherit;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .seat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14.5px;box-shadow:var(--shadow)}
 .seat .lb{font-size:12px;color:var(--green);background:var(--inset);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-right:5px}
 .seat .nm{font-weight:600}
@@ -128,6 +146,20 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 56px}
 .room{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:13.5px;box-shadow:var(--shadow)}
 .room .rc{font-weight:700;color:var(--green)}
 .room .rl{color:var(--muted);font-size:12.5px}
+/* 資料版樓層示意圖 */
+.floormap-wrap{overflow-x:auto;padding:2px 0 10px}
+.floormap{position:relative;display:grid;gap:5px;padding:13px;min-width:820px;
+  border:3px solid var(--green);border-radius:14px;background:var(--inset);
+  box-shadow:inset 0 1px 6px rgba(60,45,20,.08)}
+.froom{background:var(--card);border:1px solid var(--line);border-radius:7px;padding:4px 7px;
+  font-size:12px;line-height:1.35;display:flex;flex-direction:column;box-shadow:var(--shadow);min-height:34px;justify-content:center}
+.froom .rc{font-weight:700;color:var(--green);font-size:12.5px}
+.froom .rl{color:var(--muted);font-size:11px}
+.froom.fac{background:transparent;border-style:dashed;box-shadow:none}
+.froom.fac .rl{font-weight:600;font-size:11.5px}
+.froom.hl{outline:3px solid var(--gold);background:#FDF6DF;box-shadow:0 0 0 6px rgba(184,144,66,.20)}
+.floormap .item.hidden{display:flex!important;opacity:.15}
+.searching-on .floormap .item:not(.hidden){outline:2.5px solid var(--gold);background:#FDF6DF}
 .muted{color:var(--muted);font-size:13.5px;padding:6px 2px}
 
 .hidden{display:none!important}
@@ -194,27 +226,40 @@ function boot(D){
             <div class="loc"><span class="tag room">教室</span>${h.roomCode?('<button class="rmcode rlink" data-floor="'+esc(h.roomFloor)+'">'+esc(h.roomCode)+'</button>'):'<span class="rmcode">—</span>'}</div>
             ${(o&&h.offRoom&&h.offRoom===o.room)
               ? '<div class="loc"><span class="tag dial">分機</span><span class="ext">'+esc(h.offExt||'—')+'</span></div>'
-              : '<div class="loc"><span class="tag office">導辦</span>'+(h.offRoom?('<button class="rmcode rlink" data-floor="'+esc(h.offFloor)+'">'+esc(h.offRoom)+'</button>'):'<span class="rmcode">—</span>')+(h.offExt?('<span class="ext">☎ '+esc(h.offExt)+'</span>'):'')+'</div>'}
+              : '<div class="loc"><span class="tag office">導辦</span>'+(h.offRoom?('<button class="rmcode olink" data-room="'+esc(h.offRoom)+'" title="看辦公室座位圖">'+esc(h.offRoom)+'</button>'):'<span class="rmcode">—</span>')+(h.offExt?('<span class="ext">☎ '+esc(h.offExt)+'</span>'):'')+'</div>'}
           </div>
           ${h.email?`<div class="email">✉ <a href="mailto:${esc(h.email)}">${esc(h.email)}</a></div>`:''}
         </div>`;
       }).join('');
       return `<div class="grade-block" data-office="1" data-grade="${g}">
         <div class="grade-head"><span class="gnum">${esc(g)}</span><span class="gtitle">${esc(GN[g]||g)}</span>
-        ${o?`<span class="gdao">導辦 · <button class="rlink glink" data-floor="${esc(o.floor)}" title="看樓層平面圖">${esc(o.room)}</button></span>`:''}</div>
+        ${o?`<span class="gdao">導辦 · <button class="olink glink" data-room="${esc(o.room)}" title="看辦公室座位圖">${esc(o.room)}</button></span>`:''}</div>
         <div class="grid">${cards}</div></div>`;
     }).join('');
     return nav+blocks;
   }
   function officeHTML(list,isCN){
     return list.map(o=>{
-      const seats=isCN
+      const hasMap = isCN && o.members.length && o.members[0].gx!=null;
+      const seats = hasMap
+        ? (()=>{ // 座位配置圖：照試算表相對位置排、標出門
+            const desks=o.members.map(m=>{const s=[m.label,m.name,m.ext,o.room,o.office].join(' ').toLowerCase();
+              return `<div class="desk item" data-s="${esc(s)}" style="grid-column:${m.gx+1};grid-row:${m.gy+1}">${m.label?('<span class="lb">'+esc(m.label)+'</span>'):''}<span class="nm">${esc(m.name)}</span>${m.ext?('<span class="dext">☎ '+esc(m.ext)+'</span>'):''}</div>`;}).join('');
+            const doors=(o.doors||[]).map(d=>{
+              const st=d.side==='left'?`left:-6px;top:${d.pos}%;transform:translateY(-50%)`
+                     :d.side==='right'?`right:-6px;top:${d.pos}%;transform:translateY(-50%)`
+                     :d.side==='top'?`top:-11px;left:${d.pos}%;transform:translateX(-50%)`
+                     :`bottom:-11px;left:${d.pos}%;transform:translateX(-50%)`;
+              return `<span class="door" style="${st}">門</span>`;}).join('');
+            return `<div class="seatmap-wrap"><div class="seatmap" style="grid-template-columns:repeat(${o.gw},1fr)">${desks}${doors}</div></div>`;
+          })()
+        : isCN
         ? o.members.map(m=>{const s=[m.label,m.name,m.ext,o.room,o.office].join(' ').toLowerCase();
             return `<div class="seat item" data-s="${esc(s)}">${m.label?('<span class="lb">'+esc(m.label)+'</span>'):''}<span class="nm">${esc(m.name)}</span>${m.ext?('<span class="ex">'+esc(m.ext)+'</span>'):''}</div>`;}).join('')
         : o.members.map(n=>{const s=[n,o.room,o.office].join(' ').toLowerCase();
             return `<div class="seat item" data-s="${esc(s)}"><span class="nm">${esc(n)}</span></div>`;}).join('');
       const dep=/math/i.test(o.office)?'d-math':/social/i.test(o.office)?'d-ss':/science/i.test(o.office)?'d-sci':/english/i.test(o.office)?'d-en':'';
-      return `<div class="office collapsed ${dep}" data-office="1"><h3 class="off-head"><span class="rm rlink" data-floor="${esc(o.floor)}" title="看樓層平面圖">${esc(o.room)}</span> <span class="off-name">${esc(o.office)}</span> <span class="off-cnt">${o.members.length}人</span><span class="chev">▾</span></h3><div class="seat-grid">${seats}</div></div>`;
+      return `<div class="office collapsed ${dep}" data-office="1"><h3 class="off-head"><span class="rm rlink" data-floor="${esc(o.floor)}" title="看樓層平面圖">${esc(o.room)}</span> <span class="off-name">${esc(o.office)}</span> <span class="off-cnt">${o.members.length}人</span><span class="chev">▾</span></h3><div class="seat-grid${hasMap?' as-map':''}">${seats}</div></div>`;
     }).join('');
   }
   function deptHTML(){
@@ -231,13 +276,23 @@ function boot(D){
     const order=D.floorOrder.slice().reverse();  // 1F 在最左、7F 在最右
     const btns=order.map(f=>`<button class="fbtn" data-f="${f}">${f}</button>`).join('');
     const groups=order.map(f=>{
-      const rooms=D.floorRooms[f]||[];
-      const items=rooms.map(r=>{const s=[r.code,r.space,f].join(' ').toLowerCase();
-        return `<div class="room item" data-s="${esc(s)}"><span class="rc">${esc(r.code)}</span> <span class="rl">${esc(r.space)}</span></div>`;}).join('');
       const n=parseInt(f,10);
+      const fm=D.floorMaps&&D.floorMaps[f];
+      let inner;
+      if(fm&&fm.cells.length){ // 資料版示意圖（照工作表格子位置排）
+        const cells=fm.cells.map(cl=>{
+          const s=[cl.code,cl.label,f].join(' ').toLowerCase();
+          return `<div class="froom${cl.code?'':' fac'} item" data-s="${esc(s)}"${cl.code?(' data-code="'+esc(cl.code)+'"'):''} style="grid-column:${cl.gx+1};grid-row:${cl.gy+1}">${cl.code?('<span class="rc">'+esc(cl.code)+'</span>'):''}${cl.label?('<span class="rl">'+esc(cl.label)+'</span>'):''}</div>`;
+        }).join('');
+        inner=`<div class="floormap-wrap"><div class="floormap" style="grid-template-columns:repeat(${fm.gw},minmax(56px,1fr))">${cells}</div></div>`;
+      } else { // 舊 API 沒有 floorMaps 時退回清單
+        const rooms=D.floorRooms[f]||[];
+        inner='<div class="rooms">'+(rooms.map(r=>{const s=[r.code,r.space,f].join(' ').toLowerCase();
+          return `<div class="room item" data-s="${esc(s)}"><span class="rc">${esc(r.code)}</span> <span class="rl">${esc(r.space)}</span></div>`;}).join('')||'<div class="muted">（此樓層無教室清單，請看平面圖）</div>')+'</div>';
+      }
       return `<div class="floor-group" data-floor="${f}">
         <img class="fp-img" src="${FP_IMG[n]||''}" alt="${f} 平面圖">
-        <div class="rooms">${items||'<div class="muted">（此樓層無教室清單，請看平面圖）</div>'}</div></div>`;
+        ${inner}</div>`;
     }).join('');
     return `<div class="fp-tabs">${btns}</div>${groups}`;
   }
@@ -287,10 +342,27 @@ function boot(D){
     if(e.target.closest('.rlink')) return; // clicking the room code jumps to the floor plan instead
     const h=e.target.closest('.off-head'); if(h) h.parentElement.classList.toggle('collapsed');
   }));
-  // click a room code (H323) -> jump straight to that floor's plan image
+  // click a 導辦 code (H516) -> open that office's interior seat map in tab 02
+  document.addEventListener('click',e=>{
+    const ol=e.target.closest('.olink'); if(!ol) return;
+    q.value=''; setTab('cn');
+    const code=(ol.dataset.room||ol.textContent).trim();
+    document.querySelectorAll('.office.flash').forEach(x=>x.classList.remove('flash'));
+    const off=[...document.querySelectorAll('#sec-cn .office')].find(o=>{
+      const rm=o.querySelector('.rm'); return rm&&rm.textContent.trim()===code;});
+    if(off){
+      off.classList.remove('collapsed'); off.classList.add('flash');
+      setTimeout(()=>{const y=off.getBoundingClientRect().top+window.scrollY-70; window.scrollTo(0,y>0?y:0);},60);
+    }
+  });
+  // click a room code (H323) -> jump to that floor's plan, highlight the room on the schematic
   document.addEventListener('click',e=>{
     const el=e.target.closest('.rlink'); if(!el) return;
     q.value=''; setTab('fl'); showFloor(el.dataset.floor);
+    document.querySelectorAll('.froom.hl').forEach(x=>x.classList.remove('hl'));
+    const code=(el.dataset.code||el.textContent).trim();
+    const tgt=document.querySelector('.floor-group.active .froom[data-code="'+code+'"]');
+    if(tgt) tgt.classList.add('hl');
     setTimeout(()=>{
       const t=document.querySelector('.fp-tabs');
       if(t){const y=t.getBoundingClientRect().top+window.scrollY-58; window.scrollTo(0,y>0?y:0);}
@@ -301,6 +373,7 @@ function boot(D){
     const term=q.value.trim().toLowerCase();
     clr.style.display=term?'block':'none';
     const searching=term.length>0;
+    document.body.classList.toggle('searching-on',searching);
     let total=0;
     document.querySelectorAll('.item').forEach(el=>{
       const hit=!term||el.dataset.s.includes(term);
