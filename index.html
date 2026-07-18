@@ -72,12 +72,14 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 56px}
 .name .en{display:block;color:var(--muted);font-size:12.5px;font-weight:400}
 .leader{display:inline-block;margin-top:5px;font-size:11px;background:#8A3A4A;color:#fff;
   border-radius:6px;padding:2px 9px;font-weight:600;letter-spacing:.5px}
-.locs{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:8px}
-.loc{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.tag{font-size:12px;color:#fff;border-radius:6px;padding:2px 0;font-weight:600;width:3.4em;text-align:center;flex:none}
-.tag.room{background:var(--green-2)}
-.tag.office{background:var(--gold)}
-.tag.dial{background:var(--ext)}
+.locs{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:7px}
+.loc{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;white-space:nowrap;font-size:11.5px;color:#fff;
+  border-radius:6px;padding:2px 9px;font-weight:600;flex:none;letter-spacing:1px}
+.dot{color:var(--gold);font-weight:700;margin:0 1px}
+.tag.t-room{background:var(--green-2)}
+.tag.t-off{background:var(--gold)}
+.tag.t-dial{background:var(--ext);margin-left:auto}
 .rmcode{font-weight:700;color:var(--green);font-size:15.5px;letter-spacing:.5px}
 .flr{background:var(--inset);border:1px solid var(--line);color:var(--green);border-radius:6px;padding:1px 8px;font-size:12.5px;font-weight:600}
 .ext{color:var(--ext);font-weight:700;font-size:13.5px}
@@ -137,7 +139,9 @@ main{max-width:960px;margin:0 auto;padding:16px 16px 56px}
 .floor-group{display:none}
 #sec-fl:not(.searching) .floor-group.active{display:block}
 #sec-fl.searching .floor-group{display:block}
-#sec-fl.searching .fp-tabs,#sec-fl.searching .fp-img{display:none}
+#sec-fl.searching .fp-tabs,#sec-fl.searching .fp-img,#sec-fl.searching .fp-cap{display:none}
+.fp-cap{font-size:12.5px;color:var(--gold);letter-spacing:2px;font-weight:700;margin:2px 2px 8px}
+.fp-cap:not(:first-child){margin-top:14px}
 .fp-img{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff;
   box-shadow:var(--shadow);margin-bottom:12px;cursor:zoom-in}
 .fp-img.zoom{cursor:zoom-out;position:fixed;inset:0;width:100vw;height:100vh;object-fit:contain;
@@ -223,10 +227,10 @@ function boot(D){
             <div class="name">${esc(h.cn)}<span class="en">${esc(h.en)}</span>${h.leader?'<span class="leader">學年主任</span>':''}</div>
           </div>
           <div class="locs">
-            <div class="loc"><span class="tag room">教室</span>${h.roomCode?('<button class="rmcode rlink" data-floor="'+esc(h.roomFloor)+'">'+esc(h.roomCode)+'</button>'):'<span class="rmcode">—</span>'}</div>
             ${(o&&h.offRoom&&h.offRoom===o.room)
-              ? '<div class="loc"><span class="tag dial">分機</span><span class="ext">'+esc(h.offExt||'—')+'</span></div>'
-              : '<div class="loc"><span class="tag office">導辦</span>'+(h.offRoom?('<button class="rmcode olink" data-room="'+esc(h.offRoom)+'" title="看辦公室座位圖">'+esc(h.offRoom)+'</button>'):'<span class="rmcode">—</span>')+(h.offExt?('<span class="ext">☎ '+esc(h.offExt)+'</span>'):'')+'</div>'}
+              ? '<div class="loc"><span class="tag t-room">教室</span>'+(h.roomCode?('<button class="rmcode rlink" data-floor="'+esc(h.roomFloor)+'">'+esc(h.roomCode)+'</button>'):'<span class="rmcode">—</span>')+(h.offExt?('<span class="tag t-dial">分機</span><span class="ext">'+esc(h.offExt)+'</span>'):'')+'</div>'
+              : '<div class="loc"><span class="tag t-room">教室</span>'+(h.roomCode?('<button class="rmcode rlink" data-floor="'+esc(h.roomFloor)+'">'+esc(h.roomCode)+'</button>'):'<span class="rmcode">—</span>')+'</div>'
+                +'<div class="loc"><span class="tag t-off">導辦</span>'+(h.offRoom?('<button class="rmcode olink" data-room="'+esc(h.offRoom)+'" title="看辦公室座位圖">'+esc(h.offRoom)+'</button>'):'<span class="rmcode">—</span>')+(h.offExt?('<span class="tag t-dial">分機</span><span class="ext">'+esc(h.offExt)+'</span>'):'')+'</div>'}
           </div>
           ${h.email?`<div class="email">✉ <a href="mailto:${esc(h.email)}">${esc(h.email)}</a></div>`:''}
         </div>`;
@@ -291,8 +295,10 @@ function boot(D){
           return `<div class="room item" data-s="${esc(s)}"><span class="rc">${esc(r.code)}</span> <span class="rl">${esc(r.space)}</span></div>`;}).join('')||'<div class="muted">（此樓層無教室清單，請看平面圖）</div>')+'</div>';
       }
       return `<div class="floor-group" data-floor="${f}">
-        <img class="fp-img" src="${FP_IMG[n]||''}" alt="${f} 平面圖">
-        ${inner}</div>`;
+        <div class="fp-cap">教室位置示意圖</div>
+        ${inner}
+        <div class="fp-cap">建築平面圖</div>
+        <img class="fp-img" src="${FP_IMG[n]||''}" alt="${f} 平面圖"></div>`;
     }).join('');
     return `<div class="fp-tabs">${btns}</div>${groups}`;
   }
