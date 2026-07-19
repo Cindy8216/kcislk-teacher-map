@@ -286,7 +286,8 @@ function boot(D){
       if(fm&&fm.cells.length){ // 資料版示意圖（照工作表格子位置排）
         const cells=fm.cells.map(cl=>{
           const s=[cl.code,cl.label,f].join(' ').toLowerCase();
-          return `<div class="froom${cl.code?'':' fac'} item" data-s="${esc(s)}"${cl.code?(' data-code="'+esc(cl.code)+'"'):''} style="grid-column:${cl.gx+1};grid-row:${cl.gy+1}">${cl.code?('<span class="rc">'+esc(cl.code)+'</span>'):''}${cl.label?('<span class="rl">'+esc(cl.label)+'</span>'):''}</div>`;
+          const gc=`grid-column:${cl.gx+1}${cl.sw?'/span '+cl.sw:''};grid-row:${cl.gy+1}${cl.sh?'/span '+cl.sh:''}`;
+          return `<div class="froom${cl.code?'':' fac'} item" data-s="${esc(s)}"${cl.code?(' data-code="'+esc(cl.code)+'"'):''} style="${gc}">${cl.code?('<span class="rc">'+esc(cl.code)+'</span>'):''}${cl.label?('<span class="rl">'+esc(cl.label)+'</span>'):''}</div>`;
         }).join('');
         inner=`<div class="floormap-wrap"><div class="floormap" style="grid-template-columns:repeat(${fm.gw},minmax(56px,1fr))">${cells}</div></div>`;
       } else { // 舊 API 沒有 floorMaps 時退回清單
